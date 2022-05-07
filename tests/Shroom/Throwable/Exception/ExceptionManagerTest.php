@@ -10,12 +10,12 @@ class ExceptionManagerTest extends TestCase
 
     private $exceptionHandler;
 
-    public function setUp()
+    public function setUp():void
     {
         $this->exceptionHandler = new \Shroom\Throwable\Exception\ExceptionManager("EXCEPTION MANAGER TEST", 321);
     }
 
-    public function tearDown()
+    public function tearDown():void
     {
         $this->exceptionHandler = null;
     }

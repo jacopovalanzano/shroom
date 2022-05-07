@@ -1,7 +1,7 @@
 {
     "name": "jacopovalanzano/shroom",
     "description": "Simple PHP framework for building scalable web applications.",
-    "version": "0.2.54-beta.1",
+    "version": "0.2.54-beta.2",
     "homepage": "https://github.com/jacopovalanzano/shroom",
     "authors": [
         {
@@ -15,8 +15,8 @@
     },
     "license": "MIT",
     "keywords": ["framework", "shroom", "cms"],
-    "type": "library",    
-    "minimum-stability": "dev",
+    "type": "library",
+    "minimum-stability": "beta",
     "prefer-stable" : true,
     "config": {
         "sort-packages": true

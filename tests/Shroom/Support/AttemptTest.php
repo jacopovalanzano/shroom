@@ -10,12 +10,12 @@ class AttemptTest extends TestCase
 
     private $instance;
 
-    public function setUp()
+    public function setUp():void
     {
         $this->instance = new \Shroom\Support\Attempt();
     }
 
-    public function tearDown()
+    public function tearDown():void
     {
         $this->instance = null;
     }
@@ -124,57 +124,49 @@ class AttemptTest extends TestCase
 
         $int = "int";
 
-        $this->assertInternalType(
-            IsType::TYPE_INT,
+        $this->assertIsInt(
             $this->instance->typehint("int", $int)
         );
 
         $str = "str";
 
-        $this->assertInternalType(
-            IsType::TYPE_STRING,
+        $this->assertIsString(
             $this->instance->typehint("str", $str)
         );
 
         $object = "object";
 
-        $this->assertInternalType(
-            IsType::TYPE_OBJECT,
+        $this->assertIsObject(
             $this->instance->typehint("object", $object)
         );
 
         $array = "array";
 
-        $this->assertInternalType(
-            IsType::TYPE_ARRAY,
+        $this->assertIsArray(
             $this->instance->typehint("array", $array)
         );
 
         $bool = "bool";
 
-        $this->assertInternalType(
-            IsType::TYPE_BOOL,
+        $this->assertIsBool(
             $this->instance->typehint("bool", $bool)
         );
 
         $float = "1.5";
 
-        $this->assertInternalType(
-            IsType::TYPE_FLOAT,
+        $this->assertIsFloat(
             $this->instance->typehint("float", $float)
         );
 
         $closure = "closure";
 
-        $this->assertInternalType(
-            IsType::TYPE_CALLABLE,
+        $this->assertIsCallable(
             $this->instance->typehint("closure", $closure)
         );
 
         $callable = "callable";
 
-        $this->assertInternalType(
-            IsType::TYPE_CALLABLE,
+        $this->assertIsCallable(
             $this->instance->typehint("callable", $callable)
         );
     }
