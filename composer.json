@@ -2,15 +2,20 @@
     "name": "jacopovalanzano/shroom",
     "description": "Simple PHP framework for building scalable web applications.",
     "version": "0.2.54",
-    "type": "library",
-    "license": "MIT",
+    "homepage": "https://github.com/jacopovalanzano/shroom",
     "authors": [
         {
             "name": "Jacopo Valanzano",
             "email": "jacopo.valanzano@gmail.com"
         }
     ],
+    "support": {
+        "issues": "https://github.com/jacopovalanzano/shroom/issues",
+        "source": "https://github.com/jacopovalanzano/shroom"
+    },
+    "license": "MIT",
     "keywords": ["framework", "shroom", "cms"],
+    "type": "library",    
     "minimum-stability": "dev",
     "prefer-stable" : true,
     "config": {
@@ -23,8 +28,5 @@
         "psr-4": {
                 "Shroom\\": "src/Shroom/"
         }
-    },
-    "require": {
-        "psr/log": "^1.1"
     }
 }
