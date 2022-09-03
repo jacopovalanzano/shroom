@@ -1,6 +1,6 @@
 # PHP Shroom framework
 
-Simple framework for building web applications.
+Framework for building web applications.
 
 ## Install
 
