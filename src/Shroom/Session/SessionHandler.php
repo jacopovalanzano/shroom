@@ -94,7 +94,7 @@ class SessionHandler extends SessionManager
     public function setNewDriver(string $name, \SessionHandlerInterface $driver)
     {
         if(isset($this->driver[$name])) {
-            throw new DoingItWrongException(get_called_class()." an entry for the Session driver [${name}] already exists.");
+            throw new DoingItWrongException(\get_called_class()." an entry for the Session driver ['$name'] already exists.");
         }
 
         return $this->driver[$name] = new SessionDriverWrapper($driver);
@@ -193,9 +193,9 @@ class SessionHandler extends SessionManager
     /**
      * {@inheritdoc }
      */
-    public function setId(string $id)
+    public function setId(string $sessionId)
     {
-        return parent::setId($id);
+        return parent::setId($sessionId);
     }
 
     /**
@@ -209,9 +209,9 @@ class SessionHandler extends SessionManager
     /**
      * {@inheritdoc }
      */
-    public function setName(string $name)
+    public function setName(string $sessionName)
     {
-        return parent::setName($name);
+        return parent::setName($sessionName);
     }
 
     /**
@@ -221,7 +221,7 @@ class SessionHandler extends SessionManager
      */
     public function isStarted()
     {
-        return $this->sessionStatus() === PHP_SESSION_ACTIVE;
+        return $this->sessionStatus() === \PHP_SESSION_ACTIVE;
     }
 
     /**
@@ -249,7 +249,7 @@ class SessionHandler extends SessionManager
     /**
      * Regenerates the session id. This process implies the old session is erased.
      *
-     * @return bool
+     * @return SessionHandler
      */
     public function sessionRegenerateId($delete_old_session = false)
     {
@@ -268,10 +268,11 @@ class SessionHandler extends SessionManager
      * Writes the session data to storage and closes the session.
      *
      * @return bool
+     * @throws BadMethodCallException
      */
     public function sessionClose()
     {
-        session_write_close();
+        \session_write_close();
         return $this->close();
     }
 
@@ -302,7 +303,7 @@ class SessionHandler extends SessionManager
      *
      * @param $name
      * @return mixed
-     * @throws BadMethodCallException
+     * @throws BadMethodCallException|\Shroom\Throwable\Exception\Logic\InvalidArgumentException
      */
     public function __get($name)
     {
@@ -311,7 +312,7 @@ class SessionHandler extends SessionManager
 
     /**
      * @param $name
-     * @return mixed
+     * @return bool
      * @throws BadMethodCallException
      */
     public function __isset($name)
@@ -333,10 +334,10 @@ class SessionHandler extends SessionManager
      */
     public function __call($method, $parameters)
     {
-        if(method_exists(self::$instance, $method)) {
-            return call_user_func_array([self::$instance, $method], $parameters);
+        if(\method_exists(self::$instance, $method)) {
+            return \call_user_func_array([self::$instance, $method], $parameters);
         }
 
-        throw new MethodNotFoundException(get_called_class()." does not have a method '${method}'");
+        throw new MethodNotFoundException(get_called_class()." does not have a method '$method'");
     }
 }

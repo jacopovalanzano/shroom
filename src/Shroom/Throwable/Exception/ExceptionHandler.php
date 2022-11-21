@@ -11,7 +11,7 @@ use Shroom\Support\Attempt;
  * @package Shroom\Throwable\Exception
  * @license MIT
  */
-class ExceptionHandler extends ExceptionManager
+trait ExceptionHandler
 {
 
     /**

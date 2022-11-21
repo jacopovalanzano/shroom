@@ -7,8 +7,6 @@ use RuntimeException;
 /**
  * Class FileSession
  *
- * Session handler (wrapper) class for storing session to files with the default PHP session handler.
- *
  * Implements \SessionHandler and is compatible with PHP's native "session_set_save_handler".
  *
  * @author Jacopo Valanzano
@@ -35,8 +33,8 @@ class FileSession implements \SessionHandlerInterface
     public function open($path, $sessionName):bool
     {
         $this->path = $path;
-        if (!is_dir($this->path)) {
-            if (!mkdir($concurrentDirectory = $this->path, 0777) && !is_dir($concurrentDirectory)) {
+        if (! \is_dir($this->path)) {
+            if (! \mkdir($concurrentDirectory = $this->path, 0777) && ! \is_dir($concurrentDirectory)) {
                 throw new RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
             }
         }
@@ -63,7 +61,7 @@ class FileSession implements \SessionHandlerInterface
      */
     public function read($sessionId):string
     {
-        return (string)@file_get_contents("$this->path/tdr_sess_$sessionId");
+        return (string) @ \file_get_contents("$this->path/tdr_sess_$sessionId");
     }
 
     /**
@@ -75,7 +73,7 @@ class FileSession implements \SessionHandlerInterface
      */
     public function write($sessionId, $data):bool
     {
-        return file_put_contents("$this->path/tdr_sess_$sessionId", $data) !== false;
+        return \file_put_contents("$this->path/tdr_sess_$sessionId", $data) !== false;
     }
 
     /**
@@ -88,8 +86,8 @@ class FileSession implements \SessionHandlerInterface
     {
         $file = "$this->path/tdr_sess_$sessionId";
 
-        if (is_file($file) === true) {
-            unlink($file);
+        if (\is_file($file) === true) {
+            \unlink($file);
         }
 
         return true;
@@ -103,9 +101,9 @@ class FileSession implements \SessionHandlerInterface
      */
     public function gc($maxLifetime):bool
     {
-        foreach (glob("$this->path/tdr_sess_*") as $file) {
-            if ((is_file($file) === true) && (filemtime($file) + $maxLifetime < time())) {
-                unlink($file);
+        foreach (\glob("$this->path/tdr_sess_*") as $file) {
+            if ((\is_file($file) === true) && (\filemtime($file) + $maxLifetime < \time())) {
+                \unlink($file);
             }
         }
 

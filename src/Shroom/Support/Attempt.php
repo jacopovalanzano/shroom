@@ -2,15 +2,15 @@
 
 namespace Shroom\Support;
 
+use Shroom\Throwable\Exception\Logic\InvalidArgumentException;
 use Shroom\Traits\Instantiable;
 
 /**
  * Class Attempt
  *
  * @author Jacopo Valanzano
- * @package Shroom\Session
+ * @package Shroom\Support
  * @license MIT
- * @todo Add "non-blockable" attempts.
  */
 class Attempt
 {
@@ -24,12 +24,14 @@ class Attempt
      */
     public function arrayLoop(array $array, callable $callback): array
     {
+        $p = [];
+
             foreach ($array as $key => $item) {
-                if(is_array($key)) {
+                if(\is_array($key)) {
                     $key = $this->arrayLoop($key, $callback);
                 }
 
-                if(is_array($item)) {
+                if(\is_array($item)) {
                     $item = $this->arrayLoop($item, $callback);
                 }
 
@@ -53,7 +55,8 @@ class Attempt
     }
 
     /**
-     * @param $array
+     * @param array $array
+     * @param string $separator
      * @return string
      */
     public function arrayToString($array, string $separator = ""): string
@@ -62,7 +65,75 @@ class Attempt
         $s = "";
 
         foreach ((array)$array as $item) {
-            $s .= (is_array($item) ? $this->arrayToString($item) : (string)$item) . $separator;
+            $s .= (\is_array($item) ? $this->arrayToString($item) : (string)$item) . $separator;
+        }
+
+        return $s;
+    }
+
+    /**
+     * @param $array
+     * @param array $capsule
+     * @param $dropLastCapsule
+     * @param $separator
+     * @param $dropLastSeparator
+     * @return string
+     * @throws InvalidArgumentException
+     */
+    public function arrayToStringEncapsulate($array, array $capsule, $dropLastCapsule = false, $separator = null, $dropLastSeparator = false): string
+    {
+
+        if(count($capsule) !== 2) {
+            throw new InvalidArgumentException("The capsule must have exactly 2 characters.");
+        }
+
+        $s = "";
+
+        $arrayLength = \count($array);
+        $i = 1;
+
+        // If the last separator must be dropped...
+        if($dropLastCapsule === true) {
+            foreach ((array)$array as $item) {
+
+                // Drop last capsule
+                if($i === $arrayLength) {
+
+                    if($dropLastSeparator === true) {
+                        $s .= (\is_array($item) ? $this->arrayToString($item) : (string)$item);
+                    } else {
+                        $s .= (\is_array($item) ? $this->arrayToString($item) : (string)$item) . $separator;
+                    }
+
+                    break; // loop ends
+                }
+
+                $s .= $capsule[0] . (\is_array($item) ? $this->arrayToString($item) : (string)$item) . $capsule[1] . $separator;
+
+                $i++;
+            }
+        } else {
+                if($dropLastSeparator === true) {
+
+                    foreach ((array)$array as $item) {
+
+                        if ($i === $arrayLength) {
+                            $s .= $capsule[0] . (\is_array($item) ? $this->arrayToString($item) : (string)$item) . $capsule[1];
+                            break; // loop ends
+                        }
+
+                        $s .= $capsule[0] . (\is_array($item) ? $this->arrayToString($item) : (string)$item) . $capsule[1] . $separator;
+
+                        $i++;
+                    }
+
+                } else {
+                    foreach ((array)$array as $item) {
+                        $s .= $capsule[0] . (\is_array($item) ? $this->arrayToString($item) : (string)$item) . $capsule[1] . $separator;
+
+                        $i++;
+                    }
+                }
         }
 
         return $s;
@@ -79,18 +150,18 @@ class Attempt
     {
         $max_indentation = 1;
 
-        $array_str = print_r($array, true);
-        $lines = explode("\n", $array_str);
+        $array_str = \print_r($array, true);
+        $lines = \explode("\n", $array_str);
 
         foreach ($lines as $line) {
-            $indentation = (strlen($line) - strlen(ltrim($line))) / 4;
+            $indentation = (\strlen($line) - \strlen(\ltrim($line))) / 4;
 
             if ($indentation > $max_indentation) {
                 $max_indentation = $indentation;
             }
         }
 
-        return (int) round(ceil(($max_indentation - 1) / 2) + 1);
+        return (int) \round(\ceil(($max_indentation - 1) / 2) + 1);
     }
 
     /**
@@ -102,26 +173,29 @@ class Attempt
      * @param string $chars
      * @return array|string|string[]
      */
-    public function stripChar(string $param, string ...$chars)
+    public function stripChar($param, string ...$chars)
     {
-        if(is_array($param)) {
+
+        $p = [];
+
+        if(\is_array($param)) {
 
             foreach ($param as $key => $item) {
-                if(is_array($key)) {
+                if(\is_array($key)) {
                     $key = $this->stripChar($key, ...$chars);
                 }
 
-                if(is_array($item)) {
+                if(\is_array($item)) {
                     $item = $this->stripChar($item, ...$chars);
                 }
 
-                $p[str_replace($chars, '', $key)] = str_replace($chars, '', $item);
+                $p[\str_replace($chars, '', $key)] = \str_replace($chars, '', $item);
             }
 
             return $p;
 
         } else {
-            return $param = str_replace($chars, '', $param);
+            return $param = \str_replace($chars, '', $param);
         }
     }
 
@@ -156,8 +230,8 @@ class Attempt
     {
         // "$ofCaller" represents the caller (file & line) of this method.
         $ofCaller = [];
-        $ofCaller["line"] = Attempt::getInstance()->logLine();
-        $ofCaller["file"] = Attempt::getInstance()->logFile();
+        $ofCaller["line"] = self::getInstance()->logLine();
+        $ofCaller["file"] = self::getInstance()->logFile();
 
         // Generates a new '\RuntimeException'
         $newException = new class($exception, $args, $ofCaller) extends \RuntimeException
@@ -182,6 +256,7 @@ class Attempt
              *
              * @param $exception
              * @param $args
+             * @param $ofCaller
              */
             public function __construct($exception, $args, $ofCaller)
             {
@@ -223,7 +298,7 @@ class Attempt
     /**
      * Tries to convert the argument to the given type.
      *
-     * @param $type
+     * @param string $type
      * @param $arg
      * @param null $default
      * @return array|bool|\Closure|int|mixed|object|string|null
@@ -291,23 +366,25 @@ class Attempt
     public function sendRequest(string $url, string $method, $content, array $headers = [])
     {
 
+        $header = "";
+
         foreach ($headers as $key => $value) {
             $header .= $key . ": " . $value . "\r\n";
         }
 
         // Strip last '\r\n\'
-        $header = substr($header, 0, -4);
+        $header = \substr($header, 0, -4);
 
         $options = array(
             'http' => array(
                 'header'  => $header,
-                'method'  => strtoupper($method),
+                'method'  => \strtoupper($method),
                 'content' => $content
             )
         );
 
-        $context  = stream_context_create($options);
-        $result = file_get_contents($url, false, $context);
+        $context  = \stream_context_create($options);
+        $result = \file_get_contents($url, false, $context);
 
         return $result;
     }
@@ -315,7 +392,7 @@ class Attempt
     /**
      * Sends a POST request.
      *
-     * @param stirng $url
+     * @param string $url
      * @param array $content
      * @param array $headers
      * @param false $json
@@ -325,17 +402,17 @@ class Attempt
     {
         if($json === true) {
             $header["Content-Type"] = "application/json";
-            $content = json_encode($content);
+            $content = \json_encode($content);
         } else {
             $header["Content-type"] = "application/x-www-form-urlencoded";
-            $content = http_build_query($content);
+            $content = \http_build_query($content);
         }
 
         foreach ($headers as $key => $value) {
             $header[$key] = $value;
         }
 
-        return $this->sendRequest($url, "POST, $content", $header);
+        return $this->sendRequest($url, "POST", $content, $header);
     }
 
     /**
@@ -349,8 +426,8 @@ class Attempt
     {
         $size = 0;
 
-        foreach (glob(rtrim($dir, '/') . '/*', GLOB_NOSORT) as $each) {
-            $size += is_file($each) ? filesize($each) : $this->getDirectorySize($each);
+        foreach (\glob(\rtrim($dir, '/') . '/*', GLOB_NOSORT) as $each) {
+            $size += \is_file($each) ? \filesize($each) : $this->getDirectorySize($each);
         }
 
         return (int)$size;
@@ -371,11 +448,11 @@ class Attempt
 
         $client = @$_SERVER['HTTP_CLIENT_IP'];
         $forward = @$_SERVER['HTTP_X_FORWARDED_FOR'];
-        $remote = @$_SERVER['REMOTE_ADDR'];
+        $remote = @$_SERVER['REMOTE_ADDR']; // @todo Evaluate use of "@": if removed, will trigger errors when testing tests/Shroom/Session/SessionHandlerTest.php
 
-        if (filter_var($client, FILTER_VALIDATE_IP)) {
+        if (\filter_var($client, FILTER_VALIDATE_IP)) {
             $ip = $client;
-        } elseif (filter_var($forward, FILTER_VALIDATE_IP)) {
+        } elseif (\filter_var($forward, FILTER_VALIDATE_IP)) {
             $ip = $forward;
         } else {
             $ip = $remote;
@@ -391,7 +468,7 @@ class Attempt
      */
     public function logLine()
     {
-        $backtrace = debug_backtrace();
+        $backtrace = \debug_backtrace();
 
         return (int)$backtrace[1]["line"];
     }
@@ -403,7 +480,7 @@ class Attempt
      */
     public function logFile()
     {
-        $backtrace = debug_backtrace();
+        $backtrace = \debug_backtrace();
 
         return (string)$backtrace[1]["file"];
     }
@@ -423,18 +500,18 @@ class Attempt
 
             $params = $reflector->getParameters();
 
-            if(count($params) < 1) {
+            if(\count($params) < 1) {
                 break;
             }
 
             foreach($params as $param) {
-                $typehintClasses[] = $param->getType()->getName();
+                $typehintClasses[] = $param->getClass()->name;
             }
 
             $typehints[] = $typehintClasses;
         }
 
-        return (count($typehints) > 1) ? $typehints : ( (count($typehints[0]) > 1) ? $typehints[0] : $typehints[0][0] );
+        return (\count($typehints) > 1) ? $typehints : ( (\count($typehints[0]) > 1) ? $typehints[0] : $typehints[0][0] );
     }
 
 }

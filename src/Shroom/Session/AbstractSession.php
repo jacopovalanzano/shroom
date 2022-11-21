@@ -9,8 +9,6 @@ use Shroom\Traits\Instantiable;
 /**
  * Class AbstractSession
  *
- * A skeleton for PHP native session.
- *
  * @author Jacopo Valanzano
  * @package Shroom\Session
  * @license MIT
@@ -40,6 +38,9 @@ abstract class AbstractSession
 
     /**
      * The state of the current session.
+     * "$sessionState" is "false" before the session is initialized.
+     * "$sessionState" defaults to "0", "1" or "2".
+     *
      *
      * @var bool|int
      */
@@ -86,52 +87,59 @@ abstract class AbstractSession
      */
     protected function start(array $options = []):bool
     {
+        // Session must be enabled
+        if ( self::$sessionState === 0 ) {
+            throw new \RuntimeException("Session must be enabled", 1);
+        }
 
-        if ((self::$sessionState === false) || (self::$sessionState === 1 )) {
+        if (
+            self::$sessionState === false  || // first time execution
+            self::$sessionState === 1 // Session enabled, but not started
+        ) {
 
             // we'll intercept the native 'files' handler, but will equally work
             // with other internal native handlers like 'sqlite', 'memcache' or 'memcached'
             // provided by PHP's extension.
-            ini_set('session.save_handler', 'files');
+            \ini_set('session.save_handler', 'files');
 
             // Make sure use_strict_mode is enabled.
             // use_strict_mode is mandatory for security reasons.
-            ini_set('session.use_strict_mode', '1');
+            \ini_set('session.use_strict_mode', '1');
 
             // Instruct php to use Shroom session handler.
-            session_set_save_handler (
+            \session_set_save_handler (
                 function($path, $sessionName) { return $this->driver()->open($path, $sessionName); },
                 function () { return $this->driver()->close(); },
                 function ($sessionId) { return $this->driver()->read($sessionId); },
                 function ($sessionId, $data) { return $this->driver()->write($sessionId, $data); },
                 function ($sessionId) { return $this->driver()->destroy($sessionId); },
                 function ($maxLifetime) { return $this->driver()->gc($maxLifetime); },
-                function ($ip = null, $timestamp = null, $prng = null, $rand = null) { return method_exists($this->driver(), "createSid") ? $this->driver()->createSid($ip, $timestamp, $prng, $rand) : $this->createSid($ip, $timestamp, $prng, $rand); }
+                function ($ip = null, $timestamp = null, $prng = null, $rand = null) { return \method_exists($this->driver(), "createSid") ? $this->driver()->createSid($ip, $timestamp, $prng, $rand) : $this->createSid($ip, $timestamp, $prng, $rand); }
             );
 
-            $this->sessionId = session_id() ?: (
+            $this->sessionId = \session_id() ?: (
                 $this->driver()->getId() ?? (
-                (method_exists($this->driver(), "createSid") === true) ? $this->driver()->createSid() : $this->createSid()
+                    (\method_exists($this->driver(), "createSid") === true) ? $this->driver()->createSid() : $this->createSid()
                 )
             );
 
             // Make sure driver session name is set
-            $sessionName = $this->sessionName ?: ( $this->driver()->getName() ?? session_name() ) ?: "__SHROOM_DEFAULT_SESSION";
+            $sessionName = $this->sessionName ?: ( $this->driver()->getName() ?? \session_name() ) ?: "__SHROOM_DEFAULT_SESSION";
 
             $this->driver()->setName($sessionName);
 
             // Make sure driver session id is set
-            $sessionId = $this->sessionId ?: ( $this->driver()->getId() ?? session_id() ) ?: ( $_COOKIE[$sessionName] ?? null );
+            $sessionId = $this->sessionId ?: ( $this->driver()->getId() ?? \session_id() ) ?: ( $_COOKIE[$sessionName] ?? null );
 
             if(isset($sessionId)) {
                 $this->driver()->setId($sessionId);
             }
 
             // Starts the session or throws an exception
-            if($this->driver()->sessionStart(array_merge([
+            if($this->driver()->sessionStart(\array_merge([
                     "name" => "__SHROOM_DEFAULT_SESSION"
                 ], $options)) !== true) {
-                throw new \RuntimeException("Error calling new Session.", 1);
+                throw new \RuntimeException("Error calling new Session", 1);
             }
 
             $this->sessionId = $this->driver()->getId();
@@ -141,12 +149,37 @@ abstract class AbstractSession
 
             // Set the session id
             self::$staticSessionId = $this->driver()->getId();
-        } elseif ( self::$sessionState === 0 ) {
-            throw new \RuntimeException("Session is disabled. Please enable session.", 1);
+
         }
 
-        return ( self::$sessionState = session_status() ) === self::_ACTIVE;
+        return ( self::$sessionState = \session_status() ) === self::_ACTIVE;
     }
+
+    /**
+     * @param array $options
+     * @return bool
+     */
+    protected function safeStart(array $options = [])
+    {
+
+        // Session must be initalized
+        if ( self::$sessionState === false ) {
+            throw new \RuntimeException("You must start a new session", 1);
+        }
+
+        // Session must be enabled
+        if ( self::$sessionState === 0 ) {
+            throw new \RuntimeException("Session must be enabled", 1);
+        }
+
+        // Session cannot be open
+        if ( self::$sessionState === 2 ) {
+            throw new \RuntimeException("Session already open", 1);
+        }
+
+        return $this->start($options);
+    }
+
 
     /**
      * Destroys the current session and updates the $sessionState.
@@ -320,17 +353,17 @@ abstract class AbstractSession
         $ip = $ip ?: \Shroom\Support\Attempt::getInstance()->getBrowserIp();
 
         // The time of request
-        $timestamp = $timestamp ?: time();
+        $timestamp = $timestamp ?: \time();
 
         // "Linear congruence generator" value
-        $prng = $prng ?: lcg_value();
+        $prng = $prng ?: \lcg_value();
 
         // Pseudo-random value
-        $rand = $rand ?: substr(str_shuffle(MD5(microtime())), 0, 10);
+        $rand = $rand ?: \substr(\str_shuffle(\md5(\microtime())), 0, 10);
 
         // @todo Ensure uniqueness to avoid collisions?
         // Finally, return the (unique?) session id
-        return md5($ip . $timestamp . $prng . $rand);
+        return \md5($ip . $timestamp . $prng . $rand);
     }
 
     /**

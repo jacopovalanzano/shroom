@@ -8,7 +8,7 @@ use RuntimeException;
  * Class ApcSession
  *
  * This class uses APC, or APCu if available, to store the session data.
- * APC stores/retrieves data from/to volatile memory.
+ * See https://www.php.net/manual/en/book.apcu.php
  *
  * Implements \SessionHandler and is compatible with the PHP function "session_set_save_handler".
  *
@@ -32,7 +32,7 @@ class ApcSession implements \SessionHandlerInterface
     public function __construct()
     {
         // Choose available driver
-        function_exists("apcu_fetch") ? $this->apc_driver = "apcu" : $this->apc_driver = "apc";
+        \function_exists("apcu_fetch") ? $this->apc_driver = "apcu" : $this->apc_driver = "apc";
     }
 
     /**
@@ -46,11 +46,11 @@ class ApcSession implements \SessionHandlerInterface
      */
     public function open($savePath, $sessionName)
     {
-        if (function_exists("apc_fetch") || function_exists("apcu_fetch")) {
+        if (\function_exists("apc_fetch") || \function_exists("apcu_fetch")) {
             return true;
         }
 
-        throw new RuntimeException(get_called_class()."No APCu or APC module available.");
+        throw new RuntimeException(\get_called_class() . " No APCu or APC module available.");
     }
 
     /**
@@ -90,7 +90,7 @@ class ApcSession implements \SessionHandlerInterface
         // have expired and needs to be garbage-collected.
         $session = [
             "session_id" => $sessionId,
-            "last_update" => time()
+            "last_update" => \time()
         ];
 
         // Gets a copy of the attributes of each session from the apc_sess_list
@@ -132,7 +132,7 @@ class ApcSession implements \SessionHandlerInterface
         // For each session in list
         foreach ($sessions as $key => $session) {
             // If the session time is expired ( reached session life + max lifetime )...
-            if($session["last_update"] + $maxLifetime <= time()) {
+            if($session["last_update"] + $maxLifetime <= \time()) {
                 // ...destroy the session and unset the apc_sess_list entry
                 // which is updated at the end of the loop.
                 $this->destroy($session["session_id"]);

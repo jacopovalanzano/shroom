@@ -66,6 +66,17 @@ class AttemptTest extends TestCase
     }
 
     /**
+     * @return void
+     * @throws \Shroom\Throwable\Exception\Logic\InvalidArgumentException
+     */
+    public function testArrayToStringEncapsulate()
+    {
+        $this->assertEquals("{Hello },{World!}", $this->instance->arrayToStringEncapsulate(["Hello ", "World!"], ["{", "}"], false, ",", true));
+        $this->assertEquals("{Hello}, World!", $this->instance->arrayToStringEncapsulate(["Hello", " World!"], ["{", "}"], true, ",", true));
+        $this->assertEquals("{Hello}, World!,", $this->instance->arrayToStringEncapsulate(["Hello", " World!"], ["{", "}"], true, ",", false));
+    }
+
+    /**
      * @param array $array
      * @return false|float|int
      */

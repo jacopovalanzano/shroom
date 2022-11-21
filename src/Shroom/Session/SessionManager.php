@@ -46,6 +46,17 @@ class SessionManager extends AbstractSession
      protected $driver;
 
     /**
+     * Starts a (new) session.
+     *
+     * @return bool
+     * @throws \RuntimeException
+     */
+    public function init()
+    {
+        return parent::getInstance()->start();
+    }
+
+    /**
      * Sets the current driver and retrieves the driver instance.
      *
      * @param string|null $name
@@ -60,11 +71,21 @@ class SessionManager extends AbstractSession
 
         // If no driver of this type ($currentDriverName) exists, throw an exception.
         if(!isset($this->driver[$this->currentDriverName])) {
-            throw new BadMethodCallException(static::class ." does not have a definition for the driver '${name}'.");
+            throw new BadMethodCallException(static::class ." does not have a definition for the driver '$name'");
         }
 
         // Return the driver instance ( of SessionDriverWrapper containing the actual session driver )
         return $this->driver[$this->currentDriverName];
+    }
+
+    /**
+     * Returns the default driver instance name.
+     *
+     * @return string
+     */
+    public function getDefaultDriverName()
+    {
+        return $this->defaultDriverName ?? "default";
     }
 
     /**
@@ -75,17 +96,6 @@ class SessionManager extends AbstractSession
     protected function instance()
     {
         return parent::getInstance();
-    }
-
-    /**
-     * Starts a (new) session.
-     *
-     * @return bool
-     * @throws \RuntimeException
-     */
-    public function init()
-    {
-        return parent::getInstance()->start();
     }
 
     /**
@@ -127,10 +137,11 @@ class SessionManager extends AbstractSession
      * @param float|null $prng
      * @param string|null $rand
      * @return string
+     * @throws BadMethodCallException
      */
     protected function createSid(string $ip = null, int $timestamp = null, float $prng = null, string $rand = null):string
     {
-        if(method_exists($this->driver(), "createSid")) {
+        if(\method_exists($this->driver(), "createSid")) {
             // Method should be "(string)" type-hinted
             return $this->driver()->createSid($ip, $timestamp, $prng, $rand);
         }
@@ -150,7 +161,7 @@ class SessionManager extends AbstractSession
     {
         // IMPORTANT: this ensures any driver writes the current session (data and id) to storage before
         // destroying.
-        session_write_close();
+        \session_write_close();
 
         return parent::destroy($sessionId);
     }
@@ -160,6 +171,7 @@ class SessionManager extends AbstractSession
      *
      * @param int $maxLifetime
      * @return int|bool
+     * @throws BadMethodCallException
      */
     protected function gc($maxLifetime = 86400)
     {
@@ -172,6 +184,7 @@ class SessionManager extends AbstractSession
      * @param string $path
      * @param string $sessionName
      * @return bool
+     * @throws BadMethodCallException
      */
     protected function open(string $path, string $sessionName):bool
     {
@@ -183,6 +196,7 @@ class SessionManager extends AbstractSession
      *
      * @param string $sessionId
      * @return string|false
+     * @throws BadMethodCallException
      */
     protected function read(string $sessionId)
     {
@@ -195,6 +209,7 @@ class SessionManager extends AbstractSession
      * @param string $sessionId
      * @param string $data
      * @return bool
+     * @throws BadMethodCallException
      */
     protected function write(string $sessionId, string $data):bool
     {
@@ -284,14 +299,14 @@ class SessionManager extends AbstractSession
      * @param $method
      * @param $parameters
      * @return mixed
-     * @throws MethodNotFoundException
+     * @throws MethodNotFoundException|BadMethodCallException
      */
     public function __call($method, $parameters)
     {
-        if(method_exists($this->driver(), $method)) {
+        if(\method_exists($this->driver(), $method)) {
             return $this->driver()->{$method}(...$parameters);
         }
 
-        throw new MethodNotFoundException(get_called_class()." does not have a method '${method}'");
+        throw new MethodNotFoundException(\get_called_class()." does not have a method '$method'");
     }
 }

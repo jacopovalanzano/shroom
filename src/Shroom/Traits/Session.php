@@ -53,7 +53,7 @@ trait Session
             return $_SESSION[$key];
         }
 
-        throw new InvalidArgumentException(get_called_class() . " tried to get the \$_SESSION['${key}'] parameter. Try isset first.", 1974);
+        throw new InvalidArgumentException(get_called_class() . " tried to get the \$_SESSION['$key'] parameter. Try isset first.", 1974);
     }
 
     /**
@@ -85,7 +85,7 @@ trait Session
      */
     public function getId()
     {
-        return session_id();
+        return \session_id();
     }
 
     /**
@@ -96,7 +96,7 @@ trait Session
      */
     public function setId($id)
     {
-        return session_id($id);
+        return \session_id($id);
     }
 
     /**
@@ -106,7 +106,7 @@ trait Session
      */
     public function getName()
     {
-        return session_name();
+        return \session_name();
     }
 
     /**
@@ -117,7 +117,7 @@ trait Session
      */
     public function setName($name = "__TODDLER_DEFAULT_SESSION")
     {
-        return session_name($name);
+        return \session_name($name);
     }
 
     /**
@@ -138,7 +138,7 @@ trait Session
      */
     public function sessionStart(array $options = [])
     {
-        return session_start($options);
+        return \session_start($options);
     }
 
     /**
@@ -148,7 +148,7 @@ trait Session
      */
     public function sessionDestroy()
     {
-        return session_destroy();
+        return \session_destroy();
     }
 
     /**
@@ -159,7 +159,7 @@ trait Session
      */
     public function sessionRegenerateId($delete_old_session = false)
     {
-        return session_regenerate_id($delete_old_session); // "true" would delete the old session data
+        return \session_regenerate_id($delete_old_session); // "true" would delete the old session data
     }
 
     /**
@@ -171,7 +171,7 @@ trait Session
     {
         $_SESSION = array();
 
-        return session_unset();
+        return \session_unset();
     }
 
     /**
@@ -181,7 +181,7 @@ trait Session
      */
     public function sessionClose()
     {
-        return session_write_close();
+        return \session_write_close();
     }
 
     /**
@@ -191,7 +191,7 @@ trait Session
      */
     public function sessionDiscard()
     {
-        return session_abort();
+        return \session_abort();
     }
 
     /**
@@ -201,7 +201,7 @@ trait Session
      */
     public function sessionStatus()
     {
-        return session_status();
+        return \session_status();
     }
 
 }

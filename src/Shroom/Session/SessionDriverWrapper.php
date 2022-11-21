@@ -90,10 +90,10 @@ class SessionDriverWrapper implements \SessionHandlerInterface
      */
     public function __call($method, $args)
     {
-        if(method_exists($this->sessionDriver, $method)) {
+        if(\method_exists($this->sessionDriver, $method)) {
             return $this->sessionDriver->{$method}(...$args);
         }
 
-        throw new MethodNotFoundException(get_called_class()." does not have a method '${method}'");
+        throw new MethodNotFoundException(\get_called_class()." does not have a method '$method'");
     }
 }
