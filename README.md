@@ -50,7 +50,7 @@ $attempt = \Shroom\Support\Attempt::getInstance();
 $visitorIP = $attempt->getBrowserIp();
 
 /**
-* Initialize the class "SSHManager", and exchange commands with a server
+* Initialize the class "SSHManager" and send commands to a server
 */
 $SSHManager = new \Shroom\SSH\SSHManager();
 
