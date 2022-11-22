@@ -1,7 +1,7 @@
 {
     "name": "jacopovalanzano/shroom",
-    "description": "Simple PHP framework for building scalable web applications.",
-    "version": "0.2.54-beta.2",
+    "description": "Essential PHP framework for building scalable web applications.",
+    "version": "0.2.54-beta.3",
     "homepage": "https://github.com/jacopovalanzano/shroom",
     "authors": [
         {
