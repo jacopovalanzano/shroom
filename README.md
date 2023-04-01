@@ -15,7 +15,7 @@ Install with Composer
 
 ### Demo
 
-After you have downloaded <b>Shroom</b>, extract and install the package. You can use <b>Composer</b> to speed things up:
+After downloading <b>Shroom</b>, extract and install the package. You can use <b>Composer</b> to speed things up:
 
 ``$ cd shroom``
 
