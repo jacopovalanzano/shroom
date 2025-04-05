@@ -1,7 +1,10 @@
+![Archived](https://img.shields.io/badge/Status-Archived-red)
 
 # PHP Shroom framework
 
 Framework for building web applications.
+
+# ⛔ This repository is obsolete and unmaintained
 
 ## Install
 
